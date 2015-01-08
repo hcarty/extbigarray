@@ -1,0 +1,3 @@
+PKG bigarray testsimple
+S src/
+B _build/src/

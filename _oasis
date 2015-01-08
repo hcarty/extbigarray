@@ -1,0 +1,23 @@
+OASISFormat: 0.4
+Name:        Extbigarray
+Version:     0.0.1
+Synopsis:    Bigarray support functions
+Authors:     Hezekiah M. Carty <hez@0ok.org>
+License:     MIT
+Plugins:     META (0.4), DevFiles (0.4)
+
+Library extbigarray
+  Path:       src/
+  BuildTools: ocamlbuild
+  BuildDepends: bigarray
+  Modules:    Extbigarray
+  
+Executable test
+  Path: t/
+  MainIs: test.ml
+  Install: false
+  BuildTools: ocamlbuild
+  BuildDepends: testsimple, extbigarray
+
+Test test
+  Command: ./test.byte

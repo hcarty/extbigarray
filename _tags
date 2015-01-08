@@ -1,0 +1,27 @@
+# OASIS_START
+# DO NOT EDIT (digest: b6e12a42974c87080433f8d00ff98bd2)
+# Ignore VCS directories, you can use the same kind of rule outside
+# OASIS_START/STOP if you want to exclude directories that contains
+# useless stuff for the build process
+true: annot, bin_annot
+<**/.svn>: -traverse
+<**/.svn>: not_hygienic
+".bzr": -traverse
+".bzr": not_hygienic
+".hg": -traverse
+".hg": not_hygienic
+".git": -traverse
+".git": not_hygienic
+"_darcs": -traverse
+"_darcs": not_hygienic
+# Library extbigarray
+"src/extbigarray.cmxs": use_extbigarray
+<src/*.ml{,i,y}>: pkg_bigarray
+# Executable test
+"t/test.byte": pkg_bigarray
+"t/test.byte": pkg_testsimple
+"t/test.byte": use_extbigarray
+<t/*.ml{,i,y}>: pkg_bigarray
+<t/*.ml{,i,y}>: pkg_testsimple
+<t/*.ml{,i,y}>: use_extbigarray
+# OASIS_STOP

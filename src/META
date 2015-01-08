@@ -1,0 +1,12 @@
+# OASIS_START
+# DO NOT EDIT (digest: 7962be8c508470fc059ac59040570712)
+version = "0.0.1"
+description = "Bigarray support functions"
+requires = "bigarray"
+archive(byte) = "extbigarray.cma"
+archive(byte, plugin) = "extbigarray.cma"
+archive(native) = "extbigarray.cmxa"
+archive(native, plugin) = "extbigarray.cmxs"
+exists_if = "extbigarray.cma"
+# OASIS_STOP
+
