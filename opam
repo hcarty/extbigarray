@@ -1,0 +1,27 @@
+opam-version: "1.2"
+name: "extbigarray"
+version: "0.0.1"
+author: "Hezekiah M. Carty"
+maintainer: "hez@0ok.org"
+license: "MIT"
+build: [
+  ["ocaml" "setup.ml" "-configure" "--prefix" prefix]
+  ["ocaml" "setup.ml" "-build"]
+]
+install: [
+  ["ocaml" "setup.ml" "-install"]
+]
+remove: [
+  ["ocamlfind" "remove" "extbigarray"]
+]
+build-test: [ make "test" ]
+depends: [
+    "ocamlfind" {build}
+    "base-bigarray"
+    "testsimple" {test}
+]
+tags: [ "bigarray" ]
+homepage: "https://github.com/hcarty/extbigarray/"
+available: [ocaml-version >= "4.02.1"]
+dev-repo: "https://github.com/hcarty/extbigarray.git"
+bug-reports: "https://github.com/hcarty/extbigarray/issues/"
