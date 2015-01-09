@@ -265,7 +265,7 @@ module Array1 = struct
   let fold f a accu_init =
     foldi (fun _i x accu -> f x accu) a accu_init
 
-  let mapi f a k =
+  let mapi f k a =
     let l = layout a in
     let n = dim a in
     let b = create k l n in
@@ -275,8 +275,8 @@ module Array1 = struct
     done;
     b
 
-  let map f a k =
-    mapi (fun _i x -> f x) a k
+  let map f k a =
+    mapi (fun _i x -> f x) k a
 
   let iteri f a =
     let l = layout a in
@@ -380,7 +380,7 @@ module Array2 = struct
   let fold f a accu_init =
     foldi (fun _i1 _i2 x accu -> f x accu) a accu_init
 
-  let mapi f a k =
+  let mapi f k a =
     let l = layout a in
     let b =
       let d1, d2 = dims a in
@@ -395,8 +395,8 @@ module Array2 = struct
     done;
     b
 
-  let map f a k =
-    mapi (fun _i1 _i2 x -> f x) a k
+  let map f k a =
+    mapi (fun _i1 _i2 x -> f x) k a
 
   let iteri f a =
     let l = layout a in
@@ -427,7 +427,7 @@ module Array2 = struct
   let reduce f a =
     reducei (fun _i1 _i2 x accu -> f x accu) a
 
-  let mapi_array1 f a k =
+  let mapi_array1 f k a =
     let b = create k (layout a) (dim1 a) (dim2 a) in
     let offset = Layout.min_index (layout a) in
     let n = max_major_index a in
@@ -438,8 +438,8 @@ module Array2 = struct
     done;
     b
 
-  let map_array1 f a k =
-    mapi_array1 (fun _i x -> f x) a k
+  let map_array1 f k a =
+    mapi_array1 (fun _i x -> f x) k a
 
   let iteri_array1 f a =
     let offset = Layout.min_index (layout a) in
@@ -559,7 +559,7 @@ module Array3 = struct
   let fold f a accu_init =
     foldi (fun _i1 _i2 _i3 x accu -> f x accu) a accu_init
 
-  let mapi f a k =
+  let mapi f k a =
     let l = layout a in
     let b =
       let d1, d2, d3 = dims a in
@@ -576,8 +576,8 @@ module Array3 = struct
     done;
     b
 
-  let map f a k =
-    mapi (fun _i1 _i2 _i3 x -> f x) a k
+  let map f k a =
+    mapi (fun _i1 _i2 _i3 x -> f x) k a
 
   let iteri f a =
     let l = layout a in
@@ -614,7 +614,7 @@ module Array3 = struct
   let reduce f a =
     reducei (fun _i1 _i2 _i3 x accu -> f x accu) a
 
-  let mapi_array2 f a k =
+  let mapi_array2 f k a =
     let b = create k (layout a) (dim1 a) (dim2 a) (dim3 a) in
     let offset = Layout.min_index (layout a) in
     let n = max_major_index a in
@@ -625,10 +625,10 @@ module Array3 = struct
     done;
     b
 
-  let map_array2 f a k =
-    mapi_array2 (fun _i x -> f x) a k
+  let map_array2 f k a =
+    mapi_array2 (fun _i x -> f x) k a
 
-  let mapi_array1 f a k =
+  let mapi_array1 f k a =
     let b = create k (layout a) (dim1 a) (dim2 a) (dim3 a) in
     let offset = Layout.min_index (layout a) in
     let n1 = max_major_index a in
@@ -642,8 +642,8 @@ module Array3 = struct
     done;
     b
 
-  let map_array1 f a k =
-    mapi_array1 (fun _i1 _i2 x -> f x) a k
+  let map_array1 f k a =
+    mapi_array1 (fun _i1 _i2 x -> f x) k a
 
   let iteri_array2 f a =
     let offset = Layout.min_index (layout a) in
@@ -780,10 +780,10 @@ module Genarray = struct
     let a = flatten_to_array1 a in
     Array1.fold f a accu_init
 
-  let map f a k =
+  let map f k a =
     let dims = dims a in
     let a = flatten_to_array1 a in
-    let a' = Array1.map f a k in
+    let a' = Array1.map f k a in
     reshape (of_array1 a') dims
 
   let iter f a =

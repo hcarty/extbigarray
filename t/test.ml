@@ -24,7 +24,7 @@ let ga_int =
   Genarray.of_array3 a3_int
 
 let ga_float =
-  Genarray.of_array3 (Array3.map float_of_int a3_int Bigarray.Float64)
+  Genarray.of_array3 (Array3.map float_of_int Bigarray.Float64 a3_int)
 
 let a_3d = [|
   [|
@@ -48,7 +48,7 @@ let () =
   no_plan ();
   diag "Testing Array1";
   is (Array1.make k c 3 0) (Array1.init k c 3 (fun _ -> 0)) "Array1.init";
-  is a1_float (Array1.map float_of_int a1_int Bigarray.Float64) "Array1.map";
+  is a1_float (Array1.map float_of_int Bigarray.Float64 a1_int) "Array1.map";
   is (Array1.fold ( + ) a1_int 0) 3 "Array1.fold";
   is (Array1.reduce ( + ) a1_int) 3 "Array1.reduce";
   is (Array1.to_array a1_int) [|0; 1; 2|] "Array1.to_array";
@@ -58,7 +58,7 @@ let () =
 
   diag "Testing Array2";
   is a2_int (Array2.init k c 3 2 (fun _ _ -> 1)) "Array2.init";
-  is (Array2.map float_of_int a2_int Bigarray.Float64)
+  is (Array2.map float_of_int Bigarray.Float64 a2_int)
     (Array2.make Bigarray.Float64 c 3 2 1.0)
     "Array2.map";
   is (Array2.reduce ( + ) a2_int) 6 "Array2.reduce";
@@ -68,7 +68,7 @@ let () =
 
   diag "Testing Array3";
   is a3_int (Array3.init k c 3 3 3 (fun _ _ _ -> 1)) "Array3.init";
-  is (Array3.map float_of_int a3_int Bigarray.Float64)
+  is (Array3.map float_of_int Bigarray.Float64 a3_int)
     (Array3.make Bigarray.Float64 c 3 3 3 1.0)
     "Array3.map";
   is (Array3.fold ( + ) a3_int 0) 27 "Array3.fold";
@@ -77,7 +77,7 @@ let () =
   is (Array3.of_array1 (Array1.make k c 27 1) 3 3 3) a3_int "Array3.of_array1";
 
   diag "Testing Genarray";
-  is (Genarray.map float_of_int ga_int Bigarray.Float64)
+  is (Genarray.map float_of_int Bigarray.Float64 ga_int)
     ga_float "Genarray.map";
   is (Genarray.reduce ( + ) ga_int) 27 "Genarray.reduce";
   is (Genarray.fold ( + ) ga_int 0) 27 "Genarray.fold";
