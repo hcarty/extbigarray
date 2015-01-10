@@ -9,14 +9,53 @@ module Kind : sig
   val to_sub : ('o, 'r) kind -> ('o -> 'o -> 'o)
   val to_mul : ('o, 'r) kind -> ('o -> 'o -> 'o)
   val to_div : ('o, 'r) kind -> ('o -> 'o -> 'o)
+  val to_neg : ('o, 'r) kind -> ('o -> 'o)
   (** [to_(op) kind] returns the given [(op)] matching [kind].
 
       @raise Invalid_argument when [kind] is [Char]. *)
 end
 
+module type S = sig
+  type ('o, 'r, 'l) t
+  module Op : sig
+    val ( + ) : (('o, 'r, 'l) t as 'a) -> 'a -> 'a
+    val ( - ) : (('o, 'r, 'l) t as 'a) -> 'a -> 'a
+    val ( * ) : (('o, 'r, 'l) t as 'a) -> 'a -> 'a
+    val ( / ) : (('o, 'r, 'l) t as 'a) -> 'a -> 'a
+    (** Apply the given operation to corresponding elements of two bigarrays *)
+
+    val ( +< ) : (('o, 'r, 'l) t as 'a) -> 'a -> unit
+    val ( -< ) : (('o, 'r, 'l) t as 'a) -> 'a -> unit
+    val ( *< ) : (('o, 'r, 'l) t as 'a) -> 'a -> unit
+    val ( /< ) : (('o, 'r, 'l) t as 'a) -> 'a -> unit
+    (** Apply the given operation to corresponding elements of two bigarrays,
+        modifying the first bigarray in place with the result. *)
+
+    val ( ~- ) : (('o, 'r, 'l) t as 'a) -> 'a
+    (** Negation *)
+
+    val ( +: ) : (('o, 'r, 'l) t as 'a) -> 'o -> 'a
+    val ( -: ) : (('o, 'r, 'l) t as 'a) -> 'o -> 'a
+    val ( *: ) : (('o, 'r, 'l) t as 'a) -> 'o -> 'a
+    val ( /: ) : (('o, 'r, 'l) t as 'a) -> 'o -> 'a
+    (** Apply the given operation to each element of a bigarray *)
+
+    val ( ~-< ) : ('o, 'r, 'l) t -> unit
+    (** Negation in place *)
+
+    val ( +:< ) : ('o, 'r, 'l) t -> 'o -> unit
+    val ( -:< ) : ('o, 'r, 'l) t -> 'o -> unit
+    val ( *:< ) : ('o, 'r, 'l) t -> 'o -> unit
+    val ( /:< ) : ('o, 'r, 'l) t -> 'o -> unit
+    (** Apply the given operation to each element of a bigarray in place *)
+  end
+end
+
 module Array1 : sig
   include module type of Bigarray.Array1
   with type ('o, 'r, 'l) t = ('o, 'r, 'l) Bigarray.Array1.t
+
+  include S with type ('o, 'r, 'l) t := ('o, 'r, 'l) Bigarray.Array1.t
 
   val dims : _ t -> int
 
@@ -48,6 +87,8 @@ end
 module Array2 : sig
   include module type of Bigarray.Array2
   with type ('o, 'r, 'l) t = ('o, 'r, 'l) Bigarray.Array2.t
+
+  include S with type ('o, 'r, 'l) t := ('o, 'r, 'l) Bigarray.Array2.t
 
   val dims : _ t -> int * int
 
@@ -87,6 +128,8 @@ end
 module Array3 : sig
   include module type of Bigarray.Array3
   with type ('o, 'r, 'l) t = ('o, 'r, 'l) Bigarray.Array3.t
+
+  include S with type ('o, 'r, 'l) t := ('o, 'r, 'l) Bigarray.Array3.t
 
   val dims : _ t -> int * int * int
 

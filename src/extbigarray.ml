@@ -101,6 +101,21 @@ module Kind = struct
     | Complex64 -> Complex.div
     | Char -> invalid_arg "to_div"
 
+  let to_neg : type o r. (o, r) kind -> (o -> o) = function
+    | Float32 -> ( ~-. )
+    | Float64 -> ( ~-. )
+    | Int8_signed -> ( ~- )
+    | Int8_unsigned -> ( ~- )
+    | Int16_signed -> ( ~- )
+    | Int16_unsigned -> ( ~- )
+    | Int -> ( ~- )
+    | Int32 -> Int32.neg
+    | Int64 -> Int64.neg
+    | Nativeint -> Nativeint.neg
+    | Complex32 -> Complex.neg
+    | Complex64 -> Complex.neg
+    | Char -> invalid_arg "to_neg"
+
   let zero : type o r. (o, r) kind -> o = function
     | Float32 -> 0.0
     | Float64 -> 0.0
@@ -204,6 +219,35 @@ let bytes_per_element : type o r. (o, r) kind -> int = function
 *)
 end
 
+module type S = sig
+  type ('o, 'r, 'l) t
+  module Op : sig
+    val ( + ) : (('o, 'r, 'l) t as 'a) -> 'a -> 'a
+    val ( - ) : (('o, 'r, 'l) t as 'a) -> 'a -> 'a
+    val ( * ) : (('o, 'r, 'l) t as 'a) -> 'a -> 'a
+    val ( / ) : (('o, 'r, 'l) t as 'a) -> 'a -> 'a
+
+    val ( +< ) : (('o, 'r, 'l) t as 'a) -> 'a -> unit
+    val ( -< ) : (('o, 'r, 'l) t as 'a) -> 'a -> unit
+    val ( *< ) : (('o, 'r, 'l) t as 'a) -> 'a -> unit
+    val ( /< ) : (('o, 'r, 'l) t as 'a) -> 'a -> unit
+
+    val ( ~- ) : (('o, 'r, 'l) t as 'a) -> 'a
+
+    val ( +: ) : (('o, 'r, 'l) t as 'a) -> 'o -> 'a
+    val ( -: ) : (('o, 'r, 'l) t as 'a) -> 'o -> 'a
+    val ( *: ) : (('o, 'r, 'l) t as 'a) -> 'o -> 'a
+    val ( /: ) : (('o, 'r, 'l) t as 'a) -> 'o -> 'a
+
+    val ( ~-< ) : ('o, 'r, 'l) t -> unit
+
+    val ( +:< ) : ('o, 'r, 'l) t -> 'o -> unit
+    val ( -:< ) : ('o, 'r, 'l) t -> 'o -> unit
+    val ( *:< ) : ('o, 'r, 'l) t -> 'o -> unit
+    val ( /:< ) : ('o, 'r, 'l) t -> 'o -> unit
+  end
+end
+
 module Array1 = struct
   include Array1
 
@@ -265,6 +309,15 @@ module Array1 = struct
   let fold f a accu_init =
     foldi (fun _i x accu -> f x accu) a accu_init
 
+  let modifyi f a =
+    foldi (
+      fun i x () ->
+        unsafe_set a i (f i x)
+    ) a ()
+
+  let modify f a =
+    modifyi (fun _i x -> f x) a
+
   let mapi f k a =
     let l = layout a in
     let n = dim a in
@@ -277,6 +330,15 @@ module Array1 = struct
 
   let map f k a =
     mapi (fun _i x -> f x) k a
+
+  let map2i f k a b =
+    mapi (
+      fun i ax ->
+        f i ax (unsafe_get b i)
+    ) k a
+
+  let map2 f k a b =
+    map2i (fun _i ax bx -> f ax bx) k a b
 
   let iteri f a =
     let l = layout a in
@@ -311,6 +373,48 @@ module Array1 = struct
     let a = create k l n in
     iteri (fun i _ -> unsafe_set a i (f i)) a;
     a
+
+  module Op = struct
+    let make_binop op a b =
+      if dim a <> dim b then invalid_arg "Array1.Infix";
+      let k = kind a in
+      map2 (op k) k a b
+
+    let ( + ) a b = make_binop Kind.to_add a b
+    let ( - ) a b = make_binop Kind.to_sub a b
+    let ( * ) a b = make_binop Kind.to_mul a b
+    let ( / ) a b = make_binop Kind.to_div a b
+    let ( ~- ) a = map (Kind.to_neg (kind a)) (kind a) a
+
+    let make_binop op a v =
+      let k = kind a in
+      map (fun x -> op k x v) k a
+
+    let ( +: ) a b = make_binop Kind.to_add a b
+    let ( -: ) a b = make_binop Kind.to_sub a b
+    let ( *: ) a b = make_binop Kind.to_mul a b
+    let ( /: ) a b = make_binop Kind.to_div a b
+
+    let make_binop op a b =
+      if dim a <> dim b then invalid_arg "Array1.Infix";
+      let op = op (kind a) in
+      modifyi (fun i ax -> op ax (unsafe_get b i)) a
+
+    let ( +< ) a b = make_binop Kind.to_add a b
+    let ( -< ) a b = make_binop Kind.to_sub a b
+    let ( *< ) a b = make_binop Kind.to_mul a b
+    let ( /< ) a b = make_binop Kind.to_div a b
+    let ( ~-< ) a = modify (Kind.to_neg (kind a)) a
+
+    let make_binop op a v =
+      let op = op (kind a) in
+      modify (fun x -> op x v) a
+
+    let ( +:< ) a b = make_binop Kind.to_add a b
+    let ( -:< ) a b = make_binop Kind.to_sub a b
+    let ( *:< ) a b = make_binop Kind.to_mul a b
+    let ( /:< ) a b = make_binop Kind.to_div a b
+  end
 end
 
 module Array2 = struct
@@ -380,6 +484,15 @@ module Array2 = struct
   let fold f a accu_init =
     foldi (fun _i1 _i2 x accu -> f x accu) a accu_init
 
+  let modifyi f a =
+    foldi (
+      fun i1 i2 x () ->
+        unsafe_set a i1 i2 (f i1 i2 x)
+    ) a ()
+
+  let modify f a =
+    modifyi (fun _i1 _i2 x -> f x) a
+
   let mapi f k a =
     let l = layout a in
     let b =
@@ -397,6 +510,15 @@ module Array2 = struct
 
   let map f k a =
     mapi (fun _i1 _i2 x -> f x) k a
+
+  let map2i f k a b =
+    mapi (
+      fun i1 i2 ax ->
+        f i1 i2 ax (unsafe_get b i1 i2)
+    ) k a
+
+  let map2 f k a b =
+    map2i (fun _i1 _i2 ax bx -> f ax bx) k a b
 
   let iteri f a =
     let l = layout a in
@@ -479,6 +601,48 @@ module Array2 = struct
     let a = create k l n1 n2 in
     iteri (fun i1 i2 _ -> unsafe_set a i1 i2 (f i1 i2)) a;
     a
+
+  module Op = struct
+    let make_binop op a b =
+      if dims a <> dims b then invalid_arg "Array2.Infix";
+      let k = kind a in
+      map2 (op k) k a b
+
+    let ( + ) a b = make_binop Kind.to_add a b
+    let ( - ) a b = make_binop Kind.to_sub a b
+    let ( * ) a b = make_binop Kind.to_mul a b
+    let ( / ) a b = make_binop Kind.to_div a b
+    let ( ~- ) a = map (Kind.to_neg (kind a)) (kind a) a
+
+    let make_binop op a v =
+      let k = kind a in
+      map (fun x -> op k x v) k a
+
+    let ( +: ) a b = make_binop Kind.to_add a b
+    let ( -: ) a b = make_binop Kind.to_sub a b
+    let ( *: ) a b = make_binop Kind.to_mul a b
+    let ( /: ) a b = make_binop Kind.to_div a b
+
+    let make_binop op a b =
+      if dims a <> dims b then invalid_arg "Array2.Infix";
+      let op = op (kind a) in
+      modifyi (fun i1 i2 ax -> op ax (unsafe_get b i1 i2)) a
+
+    let ( +< ) a b = make_binop Kind.to_add a b
+    let ( -< ) a b = make_binop Kind.to_sub a b
+    let ( *< ) a b = make_binop Kind.to_mul a b
+    let ( /< ) a b = make_binop Kind.to_div a b
+    let ( ~-< ) a = modify (Kind.to_neg (kind a)) a
+
+    let make_binop op a v =
+      let op = op (kind a) in
+      modify (fun x -> op x v) a
+
+    let ( +:< ) a b = make_binop Kind.to_add a b
+    let ( -:< ) a b = make_binop Kind.to_sub a b
+    let ( *:< ) a b = make_binop Kind.to_mul a b
+    let ( /:< ) a b = make_binop Kind.to_div a b
+  end
 end
 
 module Array3 = struct
@@ -559,6 +723,15 @@ module Array3 = struct
   let fold f a accu_init =
     foldi (fun _i1 _i2 _i3 x accu -> f x accu) a accu_init
 
+  let modifyi f a =
+    foldi (
+      fun i1 i2 i3 x () ->
+        unsafe_set a i1 i2 i3 (f i1 i2 i3 x)
+    ) a ()
+
+  let modify f a =
+    modifyi (fun _i1 _i2 _i3 x -> f x) a
+
   let mapi f k a =
     let l = layout a in
     let b =
@@ -578,6 +751,15 @@ module Array3 = struct
 
   let map f k a =
     mapi (fun _i1 _i2 _i3 x -> f x) k a
+
+  let map2i f k a b =
+    mapi (
+      fun i1 i2 i3 ax ->
+        f i1 i2 i3 ax (unsafe_get b i1 i2 i3)
+    ) k a
+
+  let map2 f k a b =
+    map2i (fun _i1 _i2 _i3 ax bx -> f ax bx) k a b
 
   let iteri f a =
     let l = layout a in
@@ -727,6 +909,48 @@ module Array3 = struct
     let a = create k l n1 n2 n3 in
     iteri (fun i1 i2 i3 _ -> unsafe_set a i1 i2 i3 (f i1 i2 i3)) a;
     a
+
+  module Op = struct
+    let make_binop op a b =
+      if dims a <> dims b then invalid_arg "Array3.Infix";
+      let k = kind a in
+      map2 (op k) k a b
+
+    let ( + ) a b = make_binop Kind.to_add a b
+    let ( - ) a b = make_binop Kind.to_sub a b
+    let ( * ) a b = make_binop Kind.to_mul a b
+    let ( / ) a b = make_binop Kind.to_div a b
+    let ( ~- ) a = map (Kind.to_neg (kind a)) (kind a) a
+
+    let make_binop op a v =
+      let k = kind a in
+      map (fun x -> op k x v) k a
+
+    let ( +: ) a b = make_binop Kind.to_add a b
+    let ( -: ) a b = make_binop Kind.to_sub a b
+    let ( *: ) a b = make_binop Kind.to_mul a b
+    let ( /: ) a b = make_binop Kind.to_div a b
+
+    let make_binop op a b =
+      if dims a <> dims b then invalid_arg "Array3.Infix";
+      let op = op (kind a) in
+      modifyi (fun i1 i2 i3 ax -> op ax (unsafe_get b i1 i2 i3)) a
+
+    let ( +< ) a b = make_binop Kind.to_add a b
+    let ( -< ) a b = make_binop Kind.to_sub a b
+    let ( *< ) a b = make_binop Kind.to_mul a b
+    let ( /< ) a b = make_binop Kind.to_div a b
+    let ( ~-< ) a = modify (Kind.to_neg (kind a)) a
+
+    let make_binop op a v =
+      let op = op (kind a) in
+      modify (fun x -> op x v) a
+
+    let ( +:< ) a b = make_binop Kind.to_add a b
+    let ( -:< ) a b = make_binop Kind.to_sub a b
+    let ( *:< ) a b = make_binop Kind.to_mul a b
+    let ( /:< ) a b = make_binop Kind.to_div a b
+  end
 end
 
 module Genarray = struct
