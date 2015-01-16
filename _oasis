@@ -1,5 +1,5 @@
 OASISFormat: 0.4
-Name:        Extbigarray
+Name:        extbigarray
 Version:     0.0.1
 Synopsis:    Bigarray support functions
 Authors:     Hezekiah M. Carty <hez@0ok.org>
