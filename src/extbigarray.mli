@@ -77,11 +77,22 @@ module Array1 : sig
   val fold : ('o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val map : ('o -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iter : ('o -> unit) -> ('o, 'r, 'l) t -> unit
+  val modify : ('o -> 'o) -> ('o, 'r, 'l) t -> unit
+  val map2 :
+    ('o1 -> 'o2 -> 'o3) -> ('o3, 'r3) kind ->
+    ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t ->
+    ('o3, 'r3, 'l) t
+  val modify2 : ('o1 -> 'o2 -> 'o1) -> ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t -> unit
 
   val reducei : (int -> 'o -> 'o -> 'o) -> ('o, 'r, 'l) t -> 'o
   val foldi : (int -> 'o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val mapi : (int -> 'o -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iteri : (int -> 'o -> unit) -> ('o, 'r, 'l) t -> unit
+  val modifyi : (int -> 'o -> 'o) -> ('o, 'r, 'l) t -> unit
+  val map2i :
+    (int -> 'o1 -> 'o2 -> 'o3) -> ('o3, 'r3) kind ->
+    ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t ->
+    ('o3, 'r3, 'l) t
 end
 
 module Array2 : sig
@@ -108,6 +119,12 @@ module Array2 : sig
   val fold : ('o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val map : ('o -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iter : ('o -> unit) -> ('o, 'r, 'l) t -> unit
+  val modify : ('o -> 'o) -> ('o, 'r, 'l) t -> unit
+  val map2 :
+    ('o1 -> 'o2 -> 'o3) -> ('o3, 'r3) kind ->
+    ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t ->
+    ('o3, 'r3, 'l) t
+  val modify2 : ('o1 -> 'o2 -> 'o1) -> ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t -> unit
 
   val reduce_array1 : ((('o, 'r, 'l) Array1.t as 'a) -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a
   val foldi_array1 : (('o, 'r, 'l) Array1.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
@@ -118,6 +135,11 @@ module Array2 : sig
   val foldi : (int -> int -> 'o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val mapi : (int -> int -> 'o -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iteri : (int -> int -> 'o -> unit) -> ('o, 'r, 'l) t -> unit
+  val modifyi : (int -> int -> 'o -> 'o) -> ('o, 'r, 'l) t -> unit
+  val map2i :
+    (int -> int -> 'o1 -> 'o2 -> 'o3) -> ('o3, 'r3) kind ->
+    ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t ->
+    ('o3, 'r3, 'l) t
 
   val reducei_array1 : (int -> (('o, 'r, 'l) Array1.t as 'a) -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a
   val foldi_array1 : (int -> ('o, 'r, 'l) Array1.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
@@ -150,6 +172,12 @@ module Array3 : sig
   val fold : ('o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val map : ('o -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iter : ('o -> unit) -> ('o, 'r, 'l) t -> unit
+  val modify : ('o -> 'o) -> ('o, 'r, 'l) t -> unit
+  val map2 :
+    ('o1 -> 'o2 -> 'o3) -> ('o3, 'r3) kind ->
+    ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t ->
+    ('o3, 'r3, 'l) t
+  val modify2 : ('o1 -> 'o2 -> 'o1) -> ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t -> unit
 
   val reduce_array1 : ((('o, 'r, 'l) Array1.t as 'a) -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a
   val fold_array1 : (('o, 'r, 'l) Array1.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
@@ -165,6 +193,11 @@ module Array3 : sig
   val foldi : (int -> int -> int -> 'o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val mapi : (int -> int -> int -> 'o -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iteri : (int -> int -> int -> 'o -> unit) -> ('o, 'r, 'l) t -> unit
+  val modifyi : (int -> int -> int -> 'o -> 'o) -> ('o, 'r, 'l) t -> unit
+  val map2i :
+    (int -> int -> int -> 'o1 -> 'o2 -> 'o3) -> ('o3, 'r3) kind ->
+    ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t ->
+    ('o3, 'r3, 'l) t
 
   val reducei_array1 : (int -> int -> (('o, 'r, 'l) Array1.t as 'a) -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a
   val foldi_array1 : (int -> int -> ('o, 'r, 'l) Array1.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a

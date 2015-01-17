@@ -318,6 +318,10 @@ module Array1 = struct
   let modify f a =
     modifyi (fun _i x -> f x) a
 
+  let modify2 f a b =
+    if dim a <> dim b then invalid_arg "Size mismatch";
+    modifyi (fun i ax -> f ax (unsafe_get b i)) a
+
   let mapi f k a =
     let l = layout a in
     let n = dim a in
@@ -492,6 +496,10 @@ module Array2 = struct
 
   let modify f a =
     modifyi (fun _i1 _i2 x -> f x) a
+
+  let modify2 f a b =
+    if dims a <> dims b then invalid_arg "Size mismatch";
+    modifyi (fun i1 i2 ax -> f ax (unsafe_get b i1 i2)) a
 
   let mapi f k a =
     let l = layout a in
@@ -731,6 +739,10 @@ module Array3 = struct
 
   let modify f a =
     modifyi (fun _i1 _i2 _i3 x -> f x) a
+
+  let modify2 f a b =
+    if dims a <> dims b then invalid_arg "Size mismatch";
+    modifyi (fun i1 i2 i3 ax -> f ax (unsafe_get b i1 i2 i3)) a
 
   let mapi f k a =
     let l = layout a in
