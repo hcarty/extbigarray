@@ -127,7 +127,7 @@ module Array2 : sig
   val modify2 : ('o1 -> 'o2 -> 'o1) -> ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t -> unit
 
   val reduce_array1 : ((('o, 'r, 'l) Array1.t as 'a) -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a
-  val foldi_array1 : (('o, 'r, 'l) Array1.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
+  val fold_array1 : (('o, 'r, 'l) Array1.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val map_array1 : (('o, 'r, 'l) Array1.t -> ('o2, 'r2, 'l) Array1.t) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iter_array1 : (('o, 'r, 'l) Array1.t -> unit) -> ('o, 'r, 'l) t -> unit
 
