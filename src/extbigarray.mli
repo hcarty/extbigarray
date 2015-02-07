@@ -64,6 +64,8 @@ module Array1 : sig
 
   val init : ('o, 'r) kind -> 'l layout -> int -> (int -> 'o) -> ('o, 'r, 'l) t
 
+  val copy : ('o, 'r, 'l) t -> ('o, 'r, 'l) t
+
   val to_array : ('o, 'r, 'l) t -> 'o array
   val of_array : ('o, 'r) kind -> 'l layout -> 'o array -> ('o, 'r, 'l) t
 
@@ -131,6 +133,8 @@ module Array2 : sig
   val map_array1 : (('o, 'r, 'l) Array1.t -> ('o2, 'r2, 'l) Array1.t) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iter_array1 : (('o, 'r, 'l) Array1.t -> unit) -> ('o, 'r, 'l) t -> unit
 
+  val map_to_array1 : (('o, 'r, 'l) Array1.t -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) Array1.t
+
   val reducei : (int -> int -> 'o -> 'o -> 'o) -> ('o, 'r, 'l) t -> 'o
   val foldi : (int -> int -> 'o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val mapi : (int -> int -> 'o -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
@@ -145,6 +149,8 @@ module Array2 : sig
   val foldi_array1 : (int -> ('o, 'r, 'l) Array1.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val mapi_array1 : (int -> ('o, 'r, 'l) Array1.t -> ('o2, 'r2, 'l) Array1.t) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iteri_array1 : (int -> ('o, 'r, 'l) Array1.t -> unit) -> ('o, 'r, 'l) t -> unit
+
+  val mapi_to_array1 : (int -> ('o, 'r, 'l) Array1.t -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) Array1.t
 end
 
 module Array3 : sig
@@ -158,6 +164,8 @@ module Array3 : sig
   val make : ('o, 'r) kind -> 'l layout -> int -> int -> int -> 'o -> ('o, 'r, 'l) t
 
   val init : ('o, 'r) kind -> 'l layout -> int -> int -> int -> (int -> int -> int -> 'o) -> ('o, 'r, 'l) t
+
+  val copy : ('o, 'r, 'l) t -> ('o, 'r, 'l) t
 
   val to_array : ('o, 'r, 'l) t -> 'o array array array
 
@@ -184,10 +192,14 @@ module Array3 : sig
   val map_array1 : (('o, 'r, 'l) Array1.t -> ('o2, 'r2, 'l) Array1.t) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iter_array1 : (('o, 'r, 'l) Array1.t -> unit) -> ('o, 'r, 'l) t -> unit
 
+  val map_to_array1 : (('o, 'r, 'l) Array2.t -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) Array1.t
+
   val reduce_array2 : ((('o, 'r, 'l) Array2.t as 'a) -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a
   val fold_array2 : (('o, 'r, 'l) Array2.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val map_array2 : (('o, 'r, 'l) Array2.t -> ('o2, 'r2, 'l) Array2.t) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iter_array2 : (('o, 'r, 'l) Array2.t -> unit) -> ('o, 'r, 'l) t -> unit
+
+  val map_to_array2 : (('o, 'r, 'l) Array1.t -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) Array2.t
 
   val reducei : (int -> int -> int -> 'o -> 'o -> 'o) -> ('o, 'r, 'l) t -> 'o
   val foldi : (int -> int -> int -> 'o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
@@ -204,10 +216,14 @@ module Array3 : sig
   val mapi_array1 : (int -> int -> ('o, 'r, 'l) Array1.t -> ('o2, 'r2, 'l) Array1.t) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iteri_array1 : (int -> int -> ('o, 'r, 'l) Array1.t -> unit) -> ('o, 'r, 'l) t -> unit
 
+  val mapi_to_array1 : (int -> ('o, 'r, 'l) Array2.t -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) Array1.t
+
   val reducei_array2 : (int -> (('o, 'r, 'l) Array2.t as 'a) -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a
   val foldi_array2 : (int -> ('o, 'r, 'l) Array2.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val mapi_array2 : (int -> ('o, 'r, 'l) Array2.t -> ('o2, 'r2, 'l) Array2.t) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iteri_array2 : (int -> ('o, 'r, 'l) Array2.t -> unit) -> ('o, 'r, 'l) t -> unit
+
+  val mapi_to_array2 : (int -> int -> ('o, 'r, 'l) Array1.t -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) Array2.t
 end
 
 module Genarray : sig
@@ -215,6 +231,8 @@ module Genarray : sig
   with type ('o, 'r, 'l) t = ('o, 'r, 'l) Bigarray.Genarray.t
 
   val make : ('o, 'r) kind -> 'l layout -> int array -> 'o -> ('o, 'r, 'l) t
+
+  val copy : ('o, 'r, 'l) t -> ('o, 'r, 'l) t
 
 (*
   val init : ('o, 'r) kind -> 'l layout -> int array -> (int array -> 'o) -> ('o, 'r, 'l) t

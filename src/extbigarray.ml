@@ -262,6 +262,11 @@ module Array1 = struct
     fill a x;
     a
 
+  let copy a =
+    let b = create (kind a) (layout a) (dim a) in
+    blit a b;
+    b
+
   let to_array a =
     let n = dim a in
     let offset = Layout.min_index (layout a) in
@@ -442,6 +447,11 @@ module Array2 = struct
     fill a init;
     a
 
+  let copy a =
+    let b = create (kind a) (layout a) (dim1 a) (dim2 a) in
+    blit a b;
+    b
+
   let to_array a =
     let n1 = dim1 a in
     let n2 = dim2 a in
@@ -557,6 +567,16 @@ module Array2 = struct
   let reduce f a =
     reducei (fun _i1 _i2 x accu -> f x accu) a
 
+  let mapi_to_array1 f k a =
+    let n = max_major_index a in
+    Array1.init k (layout a) n (
+      fun i ->
+        f i (slice a i)
+    )
+
+  let map_to_array1 f k a =
+    mapi_to_array1 (fun _i x -> f x) k a
+
   let mapi_array1 f k a =
     let b = create k (layout a) (dim1 a) (dim2 a) in
     let offset = Layout.min_index (layout a) in
@@ -670,10 +690,21 @@ module Array3 = struct
     | C_layout -> n1
     | Fortran_layout -> n3
 
+  let max_major_indices (type l) (a : (_, _, l) t) =
+    let n1, n2, n3 = max_index a in
+    match layout a with
+    | C_layout -> n1, n2
+    | Fortran_layout -> n2, n3
+
   let make kind layout d1 d2 d3 init =
     let a = create kind layout d1 d2 d3 in
     fill a init;
     a
+
+  let copy a =
+    let b = create (kind a) (layout a) (dim1 a) (dim2 a) (dim3 a) in
+    blit a b;
+    b
 
   let to_array a =
     let n1, n2, n3 = dims a in
@@ -807,6 +838,26 @@ module Array3 = struct
 
   let reduce f a =
     reducei (fun _i1 _i2 _i3 x accu -> f x accu) a
+
+  let mapi_to_array2 f k a =
+    let n1, n2 = max_major_indices a in
+    Array2.init k (layout a) n1 n2 (
+      fun i1 i2 ->
+        f i1 i2 (slice1 a i1 i2)
+    )
+
+  let map_to_array2 f k a =
+    mapi_to_array2 (fun _i1 _i2 x -> f x) k a
+
+  let mapi_to_array1 f k a =
+    let n = max_major_index a in
+    Array1.init k (layout a) n (
+      fun i ->
+        f i (slice2 a i)
+    )
+
+  let map_to_array1 f k a =
+    mapi_to_array1 (fun _i x -> f x) k a
 
   let mapi_array2 f k a =
     let b = create k (layout a) (dim1 a) (dim2 a) (dim3 a) in
@@ -983,6 +1034,11 @@ module Genarray = struct
     let a = create k l size in
     fill a x;
     a
+
+  let copy a =
+    let b = create (kind a) (layout a) (dims a) in
+    blit a b;
+    b
 
   let reshape = reshape
 
