@@ -1019,6 +1019,11 @@ end
 module Genarray = struct
   include Genarray
 
+  let min_index a =
+    let offset = Layout.min_index (layout a) in
+    let n_dims = Array.length @@ dims a in
+    Array.make n_dims offset
+
   let max_index a =
     let offset = Layout.min_index (layout a) in
     let dims = dims a in
@@ -1080,4 +1085,53 @@ module Genarray = struct
 
   let iter f a =
     Array1.iter f (flatten_to_array1 a)
+
+  let iter_dims_f dims f =
+    let rec loop dims current_dimension pos f =
+      for i = 1 to dims.(current_dimension) do
+        pos.(current_dimension) <- i;
+        if (current_dimension = 0) then f pos
+        else loop dims (current_dimension - 1) pos f
+      done
+    in
+    let n_dims = Array.length dims in
+    let pos = Array.make n_dims 1 in
+    loop dims (n_dims - 1) pos f
+
+  let iter_dims_c dims f =
+    let rec loop dims current_dimension pos f =
+      for i = 0 to dims.(current_dimension) - 1 do
+        pos.(current_dimension) <- i;
+        if (current_dimension = Array.length pos - 1) then f pos
+        else loop dims (current_dimension + 1) pos f
+      done
+    in
+    let pos = Array.make (Array.length dims) 0 in
+    loop dims 0 pos f
+
+  let iter_dims (type l) (layout : l layout) dims f =
+    match layout with
+    | C_layout -> iter_dims_c dims f
+    | Fortran_layout -> iter_dims_f dims f
+
+  let iteri f a =
+    iter_dims (layout a) (dims a) (fun i -> f i @@ get a i)
+
+  let foldi f a accu_init =
+    let result = ref accu_init in
+    iter_dims (layout a) (dims a) (fun i -> result := f i (get a i) !result);
+    !result
+
+  let mapi f k a =
+    let b = create k (layout a) (dims a) in
+    iter_dims (layout a) (dims a) (fun i -> set b i (f i (get a i)));
+    b
+(*
+
+  let reducei (type l) f (a : (_, _, l) t) =
+    FIX ME!  THIS NEEDS TO SKIP THE ELEMENT IT INITIALIZES WITH
+    SO IT MAY BE WORTH INLINING THE iter_dims CODE AND SPECIALIZING
+    IT FOR THIS CASE
+    foldi f a (get a @@ min_index a)
+*)
 end

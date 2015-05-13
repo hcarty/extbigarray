@@ -275,10 +275,11 @@ module Genarray : sig
   val iter_array3 : (('o, 'r, 'l) Array3.t -> unit) -> ('o, 'r, 'l) t -> unit
 
   val reducei : (int array -> 'o -> 'o -> 'o) -> ('o, 'r, 'l) t -> 'o
+*)
   val foldi : (int array -> 'o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val mapi : (int array -> 'o -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iteri : (int array -> 'o -> unit) -> ('o, 'r, 'l) t -> unit
-
+(*
   val reducei_array1 : (int array -> (('o, 'r, 'l) Array1.t as 'a) -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a
   val foldi_array1 : (int array -> ('o, 'r, 'l) Array1.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val mapi_array1 : (int array -> ('o, 'r, 'l) Array1.t -> ('o2, 'r2, 'l) Array1.t) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
