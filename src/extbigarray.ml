@@ -1126,6 +1126,15 @@ module Genarray = struct
     let b = create k (layout a) (dims a) in
     iter_dims (layout a) (dims a) (fun i -> set b i (f i (get a i)));
     b
+
+  let map2i f k a b =
+    mapi (
+      fun i ax ->
+        f i ax (get b i)
+    ) k a
+
+  let map2 f k a b =
+    map2i (fun _i ax bx -> f ax bx) k a b
 (*
 
   let reducei (type l) f (a : (_, _, l) t) =
@@ -1134,4 +1143,59 @@ module Genarray = struct
     IT FOR THIS CASE
     foldi f a (get a @@ min_index a)
 *)
+
+  let modifyi f a =
+    foldi (
+      fun i x () ->
+        set a i (f i x)
+    ) a ()
+
+  let modify f a =
+    modifyi (fun _i x -> f x) a
+
+  let modify2 f a b =
+    if dims a <> dims b then invalid_arg "Size mismatch";
+    modifyi (fun i ax -> f ax (get b i)) a
+
+  module Op = struct
+    let make_binop op a b =
+      if dims a <> dims b then invalid_arg "Genarray.Infix";
+      let k = kind a in
+      map2 (op k) k a b
+
+    let ( + ) a b = make_binop Kind.to_add a b
+    let ( - ) a b = make_binop Kind.to_sub a b
+    let ( * ) a b = make_binop Kind.to_mul a b
+    let ( / ) a b = make_binop Kind.to_div a b
+    let ( ~- ) a = map (Kind.to_neg (kind a)) (kind a) a
+
+    let make_binop op a v =
+      let k = kind a in
+      map (fun x -> op k x v) k a
+
+    let ( +: ) a b = make_binop Kind.to_add a b
+    let ( -: ) a b = make_binop Kind.to_sub a b
+    let ( *: ) a b = make_binop Kind.to_mul a b
+    let ( /: ) a b = make_binop Kind.to_div a b
+
+    let make_binop op a b =
+      if dims a <> dims b then invalid_arg "Genarray.Infix";
+      let op = op (kind a) in
+      modifyi (fun i ax -> op ax (get b i)) a
+
+    let ( +< ) a b = make_binop Kind.to_add a b
+    let ( -< ) a b = make_binop Kind.to_sub a b
+    let ( *< ) a b = make_binop Kind.to_mul a b
+    let ( /< ) a b = make_binop Kind.to_div a b
+    let ( ~-< ) a = modify (Kind.to_neg (kind a)) a
+
+    let make_binop op a v =
+      let op = op (kind a) in
+      modify (fun x -> op x v) a
+
+    let ( +:< ) a b = make_binop Kind.to_add a b
+    let ( -:< ) a b = make_binop Kind.to_sub a b
+    let ( *:< ) a b = make_binop Kind.to_mul a b
+    let ( /:< ) a b = make_binop Kind.to_div a b
+  end
 end

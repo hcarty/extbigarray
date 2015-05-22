@@ -230,6 +230,8 @@ module Genarray : sig
   include module type of Bigarray.Genarray
   with type ('o, 'r, 'l) t = ('o, 'r, 'l) Bigarray.Genarray.t
 
+  include S with type ('o, 'r, 'l) t := ('o, 'r, 'l) Bigarray.Genarray.t
+
   val make : ('o, 'r) kind -> 'l layout -> int array -> 'o -> ('o, 'r, 'l) t
 
   val copy : ('o, 'r, 'l) t -> ('o, 'r, 'l) t
@@ -257,6 +259,12 @@ module Genarray : sig
   val fold : ('o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val map : ('o -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iter : ('o -> unit) -> ('o, 'r, 'l) t -> unit
+  val modify : ('o -> 'o) -> ('o, 'r, 'l) t -> unit
+  val map2 :
+    ('o1 -> 'o2 -> 'o3) -> ('o3, 'r3) kind ->
+    ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t ->
+    ('o3, 'r3, 'l) t
+  val modify2 : ('o1 -> 'o2 -> 'o1) -> ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t -> unit
 
 (*
   val reduce_array1 : ((('o, 'r, 'l) Array1.t as 'a) -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a
@@ -279,6 +287,11 @@ module Genarray : sig
   val foldi : (int array -> 'o -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
   val mapi : (int array -> 'o -> 'o2) -> ('o2, 'r2) kind -> ('o, 'r, 'l) t -> ('o2, 'r2, 'l) t
   val iteri : (int array -> 'o -> unit) -> ('o, 'r, 'l) t -> unit
+  val modifyi : (int array -> 'o -> 'o) -> ('o, 'r, 'l) t -> unit
+  val map2i :
+    (int array -> 'o1 -> 'o2 -> 'o3) -> ('o3, 'r3) kind ->
+    ('o1, 'r1, 'l) t -> ('o2, 'r2, 'l) t ->
+    ('o3, 'r3, 'l) t
 (*
   val reducei_array1 : (int array -> (('o, 'r, 'l) Array1.t as 'a) -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a
   val foldi_array1 : (int array -> ('o, 'r, 'l) Array1.t -> 'a -> 'a) -> ('o, 'r, 'l) t -> 'a -> 'a
