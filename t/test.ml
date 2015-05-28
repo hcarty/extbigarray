@@ -64,6 +64,7 @@ let () =
   is (Array2.reduce ( + ) a2_int) 6 "Array2.reduce";
   is (Array2.fold ( + ) a2_int 0) 6 "Array2.fold";
   is (Array2.of_array k c [|[|1; 1|]; [|1; 1|]; [|1; 1|]|]) a2_int "Array2.of_array";
+  is (Array2.to_array a2_int) [|[|1; 1|]; [|1; 1|]; [|1; 1|]|] "Array2.to_array";
   is (Array2.of_array1 (Array1.make k c 6 1) 3 2) a2_int "Array2.of_array1";
 
   diag "Testing Array3";
@@ -74,6 +75,7 @@ let () =
   is (Array3.fold ( + ) a3_int 0) 27 "Array3.fold";
   is (Array3.reduce ( + ) a3_int) 27 "Array3.reduce";
   is (Array3.of_array k c a_3d) a3_int "Array3.of_array";
+  is (Array3.to_array a3_int) a_3d "Array3.to_array";
   is (Array3.of_array1 (Array1.make k c 27 1) 3 3 3) a3_int "Array3.of_array1";
 
   diag "Testing Genarray";

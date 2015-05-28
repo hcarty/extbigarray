@@ -452,26 +452,6 @@ module Array2 = struct
     blit a b;
     b
 
-  let to_array a =
-    let n1 = dim1 a in
-    let n2 = dim2 a in
-    let offset = Layout.min_index (layout a) in
-    Array.init n1 (
-      fun i ->
-        Array.init n2 (
-          fun j ->
-            unsafe_get a (i + offset) (j + offset)
-        )
-    )
-
-  let of_array1 s n1 n2 =
-    let ga = genarray_of_array1 s in
-    reshape_2 ga n1 n2
-
-  let to_array1 a =
-    let ga = genarray_of_array2 a in
-    reshape_1 ga (dim1 a * dim2 a)
-
   let sub (type l) (a : (_, _, l) t) ofs len : (_, _, l) t =
     let layout = layout a in
     match layout with
@@ -483,6 +463,29 @@ module Array2 = struct
     match layout with
     | C_layout -> slice_left a i
     | Fortran_layout -> slice_right a i
+
+  let to_array (type l) (a : (_, _, l) t) =
+    let n1 = dim1 a in
+    let n2 = dim2 a in
+    let offset = Layout.min_index (layout a) in
+    let n =
+      match layout a with
+      | C_layout -> n1
+      | Fortran_layout -> n2
+    in
+    Array.init n (
+      fun i ->
+        let s = slice a (i + offset) in
+        Array1.to_array s
+    )
+
+  let of_array1 s n1 n2 =
+    let ga = genarray_of_array1 s in
+    reshape_2 ga n1 n2
+
+  let to_array1 a =
+    let ga = genarray_of_array2 a in
+    reshape_1 ga (dim1 a * dim2 a)
 
   let foldi f a accu_init =
     let offset = Layout.min_index (layout a) in
@@ -706,28 +709,6 @@ module Array3 = struct
     blit a b;
     b
 
-  let to_array a =
-    let n1, n2, n3 = dims a in
-    let offset = Layout.min_index (layout a) in
-    Array.init n1 (
-      fun i ->
-        Array.init n2 (
-          fun j ->
-            Array.init n3 (
-              fun k ->
-                unsafe_get a (i + offset) (j + offset) (k + offset)
-            )
-        )
-    )
-
-  let of_array1 s n1 n2 n3 =
-    let ga = genarray_of_array1 s in
-    reshape_3 ga n1 n2 n3
-
-  let to_array1 a =
-    let ga = genarray_of_array3 a in
-    reshape_1 ga (dim1 a * dim2 a * dim3 a)
-
   let sub (type l) (a : (_, _, l) t) ofs len : (_, _, l) t =
     let layout = layout a in
     match layout with
@@ -745,6 +726,28 @@ module Array3 = struct
     match layout with
     | C_layout -> slice_left_2 a i
     | Fortran_layout -> slice_right_2 a i
+
+  let to_array (type l) (a : (_, _, l) t) =
+    let n1, n2, n3 = dims a in
+    let offset = Layout.min_index (layout a) in
+    let n =
+      match layout a with
+      | C_layout -> n1
+      | Fortran_layout -> n3
+    in
+    Array.init n (
+      fun i ->
+        let s = slice2 a (i + offset) in
+        Array2.to_array s
+    )
+
+  let of_array1 s n1 n2 n3 =
+    let ga = genarray_of_array1 s in
+    reshape_3 ga n1 n2 n3
+
+  let to_array1 a =
+    let ga = genarray_of_array3 a in
+    reshape_1 ga (dim1 a * dim2 a * dim3 a)
 
   let foldi f a accu_init =
     let offset = Layout.min_index (layout a) in
